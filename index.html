@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Procedural Clouds</title>
+
+  <style>
+    body {
+      background-color: black;
+      margin: 0;
+      padding: 0;
+    }
+    canvas {
+      position: absolute;
+    }
+  </style>
+</head>
+
+<body>
+  <canvas class="webgl"></canvas>
+
+  <script type="importmap">
+        {
+          "imports": {
+            "three": "https://unpkg.com/three@0.161.0/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three@0.161.0/examples/jsm/"
+          }
+        }
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/lil-gui@VERSION"></script>
+  <script src="main.js" type="module"></script>
+</body>
+
+</html>
