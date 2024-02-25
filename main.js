@@ -17,39 +17,59 @@ const scene = new THREE.Scene();
 scene.background = backgroundTexture;
 
 let cloudGroup;
-let makeCloud = (numberOfCubes, scaleRangeBottom, scaleRangeTop, XrotationRange, YrotationRange, ZrotationRange, positionRange, randomizationIntensity) => {
+let makeCloud = (obj) => {
+    const typeOfGeometry = obj.typeOfGeometry;
+    const numberOfGeometries = obj.numberOfGeometries;
+    const scaleRangeBottom = obj.scaleRangeBottom;
+    const scaleRangeTop = obj.scaleRangeTop;
+    const XrotationRange = obj.XrotationRange;
+    const YrotationRange = obj.YrotationRange;
+    const ZrotationRange = obj.ZrotationRange;
+    const positionRange = obj.positionRange;
+    const randomizationIntensity = obj.randomizationIntensity;
+
+
     cloudGroup = new THREE.Group();
-    for (let i = 0; i < numberOfCubes; i++) {
+    let geometry;
+    if (typeOfGeometry === 'Cube') {
+        geometry = new THREE.BoxGeometry(1, 1, 1);
+    }
+    else if (typeOfGeometry === 'Icosahedron') {
+        geometry = new THREE.IcosahedronGeometry(1, 0);
+    }
+
+    for (let i = 0; i < numberOfGeometries; i++) {
         let randomizeBy = randomizationIntensity === 0 ? 1 : Math.random() * randomizationIntensity;
-        let currCubeMesh = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshStandardMaterial({ color: 'white' }));
-        currCubeMesh.position.x = i * positionRange;
-        currCubeMesh.rotation.x = randomizeBy * XrotationRange;
-        currCubeMesh.rotation.y = randomizeBy * YrotationRange;
-        currCubeMesh.rotation.z = randomizeBy * ZrotationRange;
+        let currMesh = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ color: 'white' }));
+        currMesh.position.x = i * positionRange;
+        currMesh.rotation.x = randomizeBy * XrotationRange;
+        currMesh.rotation.y = randomizeBy * YrotationRange;
+        currMesh.rotation.z = randomizeBy * ZrotationRange;
         let scaleRandom = randomizeBy;
         let scaleFactor = scaleRangeBottom + (scaleRandom * (scaleRangeTop));
-        currCubeMesh.scale.set(scaleFactor, scaleFactor, scaleFactor);
-        cloudGroup.add(currCubeMesh);
+        currMesh.scale.set(scaleFactor, scaleFactor, scaleFactor);
+        cloudGroup.add(currMesh);
     }
     cloudGroup.name = 'Cloud';
-    cloudGroup.position.x = -1 * (numberOfCubes) / 2;
+    cloudGroup.position.x = -1 * (numberOfGeometries) / 2;
     scene.add(cloudGroup);
     return cloudGroup;
 }
 
 let generateNewCloud = () => {
     scene.remove(cloudGroup);
-    makeCloud(obj.numberOfCubes, obj.scaleRangeBottom, obj.scaleRangeTop, obj.XrotationRange, obj.YrotationRange, obj.ZrotationRange, obj.positionRange, obj.randomizationIntensity)
+    makeCloud(obj);
 }
 
 // let addMoreClouds = () => {
 //     cloudGroup
-//     makeCloud(obj.numberOfCubes, obj.scaleRangeBottom, obj.scaleRangeTop, obj.XrotationRange, obj.YrotationRange, obj.ZrotationRange, obj.positionRange, obj.randomizationIntensity)
+//     makeCloud(obj.numberOfGeometries, obj.scaleRangeBottom, obj.scaleRangeTop, obj.XrotationRange, obj.YrotationRange, obj.ZrotationRange, obj.positionRange, obj.randomizationIntensity)
 // }
 
 
 let obj = {
-    numberOfCubes: 5,
+    typeOfGeometry: 'Cube',
+    numberOfGeometries: 5,
     scaleRangeBottom: 0.25,
     scaleRangeTop: 1,
     positionRange: 1,
@@ -60,13 +80,16 @@ let obj = {
     generateNewCloud
 }
 
-makeCloud(obj.numberOfCubes, obj.scaleRangeBottom, obj.scaleRangeTop, obj.XrotationRange, obj.YrotationRange, obj.ZrotationRange, obj.positionRange, obj.randomizationIntensity);
+makeCloud(obj);
 
 let gui = new GUI();
 
 gui.add(document, 'title');
 
-gui.add(obj, 'numberOfCubes')
+gui.add(obj, 'typeOfGeometry', ['Cube', 'Icosahedron']).onFinishChange(generateNewCloud);
+
+
+gui.add(obj, 'numberOfGeometries')
     .min(1)
     .max(20)
     .step(1)
@@ -98,7 +121,7 @@ camera.position.y = 2;
 camera.position.x = 3;
 scene.add(camera);
 
-const renderer = new THREE.WebGLRenderer({ canvas });
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
 renderer.setSize(sizes.width, sizes.height);
 renderer.render(scene, camera);
 
